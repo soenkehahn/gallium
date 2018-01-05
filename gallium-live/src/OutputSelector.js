@@ -1,6 +1,7 @@
 // @flow
 import * as React from "react";
 import * as LocalStorage from "./local_storage";
+import styled from "styled-components";
 
 type State = {
   loading: boolean,
@@ -53,13 +54,25 @@ export class OutputSelector extends React.Component<
       return <div>Your browser does not seem to support WebMIDI</div>;
     }
     return (
-      <select value={this.state.value} onChange={this.onChange}>
+      <Selector value={this.state.value} onChange={this.onChange}>
         {this.options.map(x => (
           <option key={x} value={x}>
             {x}
           </option>
         ))}
-      </select>
+      </Selector>
     );
   }
 }
+
+const Selector = styled.select`
+  background: none;
+  border: none;
+  font-family: monospace;
+  box-shadow: -1px 0 0 0 #dfdfdf;
+  outline: none;
+  opacity: 0.5;
+  &:active{
+    opacity: 1;
+  }
+`;

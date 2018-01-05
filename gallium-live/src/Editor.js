@@ -114,6 +114,8 @@ export class Editor extends React.Component<
   render() {
     return (
       <Container>
+        <Pane>
+        </Pane>
         <Content>
           <Textarea
             onChange={this.onChange}
@@ -127,7 +129,9 @@ export class Editor extends React.Component<
           />
         </Content>
         <Pane>
-          <OutputSelector onChange={this.onMIDIOutputChange} />
+          <PaneChild>
+            <OutputSelector onChange={this.onMIDIOutputChange} />
+          </PaneChild>
         </Pane>
       </Container>
     );
@@ -141,24 +145,31 @@ const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: #efefef;
 `;
 
 const Pane = styled.div`
   flex: 0 1 auto;
-  background-color: #dfdfdf;
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+`;
+
+const PaneChild = styled.div`
+  padding: 10px 20px;
 `;
 
 const Content = styled.div`
   padding: 50px;
   flex-grow: 1;
   display: flex;
+  background-color: white;
 `;
 
 const Textarea = styled.textarea`
   border: 0;
   font-size: 20px;
+  background-color: transparent;
   margin: 0;
   flex-grow: 1;
   font-family: monospace;
