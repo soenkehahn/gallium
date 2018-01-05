@@ -74,6 +74,8 @@ const Selector = styled.select`
   box-shadow: 0 0 0 1px #dfdfdf;
   cursor: pointer;
   outline: none;
+  color: #252525;
+  padding: 2px;
   &:active,
   &:hover {
     box-shadow: 0 0 0 1px #252525;

@@ -128,7 +128,7 @@ export class Editor extends React.Component<
       <Container isInitialized={this.state.isInitialized}>
         <Pane>
           <PaneChild>
-            <Description>LIQUID METAL</Description>
+            <Description>gallium.live</Description>
           </PaneChild>
           <PaneChild>
             <Link href="https://github.com/sleexyz/gallium">source</Link>
@@ -209,8 +209,14 @@ export const Textarea = styled.textarea`
 
 const Description = styled.div`
   ${Styles.text};
+  font-style: italic;
+  letter-spacing: 0.25em;
 `;
 
 const Link = styled.a`
   ${Styles.text};
+  opacity: 0.25;
+  &:visited {
+    color: inherit;
+  }
 `;
