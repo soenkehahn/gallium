@@ -1,5 +1,5 @@
 // @flow
-import { injectGlobal } from "styled-components";
+import { css, injectGlobal } from "styled-components";
 import styledNormalize from "styled-normalize";
 
 export function applyGlobalStyles() {
@@ -9,3 +9,7 @@ export function applyGlobalStyles() {
     }
   `;
 }
+
+export const transition = css`
+  transition: all 100ms ease-in-out;
+`;

@@ -1,7 +1,8 @@
 // @flow
 import * as React from "react";
-import * as LocalStorage from "./local_storage";
 import styled from "styled-components";
+import * as LocalStorage from "./local_storage";
+import * as Styles from "./styles";
 
 type State = {
   loading: boolean,
@@ -66,13 +67,15 @@ export class OutputSelector extends React.Component<
 }
 
 const Selector = styled.select`
+  ${Styles.transition};
   background: none;
   border: none;
   font-family: monospace;
-  box-shadow: -1px 0 0 0 #dfdfdf;
+  box-shadow: 0 0 0 1px #dfdfdf;
+  cursor: pointer;
   outline: none;
-  opacity: 0.5;
-  &:active {
-    opacity: 1;
+  &:active,
+  &:hover {
+    box-shadow: 0 0 0 1px #252525;
   }
 `;
