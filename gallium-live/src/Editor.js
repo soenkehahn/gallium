@@ -126,7 +126,14 @@ export class Editor extends React.Component<
   render() {
     return (
       <Container isInitialized={this.state.isInitialized}>
-        <Pane />
+        <Pane>
+          <PaneChild>
+            <Description>LIQUID METAL</Description>
+          </PaneChild>
+          <PaneChild>
+            <Link href="https://github.com/sleexyz/gallium">source</Link>
+          </PaneChild>
+        </Pane>
         <Content>
           <Textarea
             onChange={this.onChange}
@@ -199,4 +206,12 @@ export const Textarea = styled.textarea`
     opacity: 1;
     box-shadow: -1px 0 0 0 #aaa;
   }
+`;
+
+const Description = styled.div`
+  ${Styles.text};
+`;
+
+const Link = styled.a`
+  ${Styles.text};
 `;

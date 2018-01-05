@@ -13,3 +13,7 @@ export function applyGlobalStyles() {
 export const transition = css`
   transition: all 100ms ease-in-out;
 `;
+
+export const text = css`
+  font-family: monospace;
+`;
