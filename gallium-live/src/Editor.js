@@ -139,8 +139,6 @@ export class Editor extends React.Component<
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
             value={this.state.text}
-            rows="24"
-            cols="60"
             innerRef={this.onTextareaRefLoad}
           />
         </Content>
@@ -185,6 +183,7 @@ const PaneChild = styled.div`
 const Content = styled.div`
   padding: 25px 50px;
   flex-grow: 1;
+  flex-shrink: 0;
   display: flex;
   background-color: white;
 `;
