@@ -72,7 +72,7 @@ const Selector = styled.select`
   box-shadow: -1px 0 0 0 #dfdfdf;
   outline: none;
   opacity: 0.5;
-  &:active{
+  &:active {
     opacity: 1;
   }
 `;

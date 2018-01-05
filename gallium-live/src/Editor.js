@@ -114,8 +114,7 @@ export class Editor extends React.Component<
   render() {
     return (
       <Container>
-        <Pane>
-        </Pane>
+        <Pane />
         <Content>
           <Textarea
             onChange={this.onChange}
