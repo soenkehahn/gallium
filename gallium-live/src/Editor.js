@@ -165,7 +165,7 @@ const Container: React$ComponentType<{ isInitialized: boolean }> = styled.div`
 
 const Pane = styled.div`
   flex: 0 1 auto;
-  min-height: 25px;
+  min-height: 50px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
