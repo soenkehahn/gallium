@@ -1,6 +1,6 @@
 // @flow
 import * as React from "react";
-import * as ReactDOM from "react-dom";
+import styled from "styled-components";
 import { parseTopLevel } from "gallium/lib/parser";
 import { type ABT, T, Term, resolve } from "gallium/lib/resolver";
 import { globalContext } from "./context";
@@ -114,28 +114,31 @@ export class Editor extends React.Component<
   render() {
     return (
       <div>
-        <h1>
-          <i style={{ letterSpacing: "0.5em" }}>gallium</i>
-        </h1>
-        <div>
-          <a href="https://github.com/sleexyz/gallium">github</a>
-        </div>
+        <OutputSelector onChange={this.onMIDIOutputChange} />
         <div style={{ marginTop: "20px" }}>
-          <textarea
+          <Textarea
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
             value={this.state.text}
             rows="24"
             cols="60"
-            ref={ref => {
+            innerRef={ref => {
               this.textarea = ref;
             }}
           />
         </div>
-        <OutputSelector onChange={this.onMIDIOutputChange} />
       </div>
     );
   }
 }
 
 export default connect(Editor, ({ text }) => ({ text }));
+
+const Textarea = styled.textarea`
+  border: 0;
+  font-size: 24;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-family: monospace;
+`;
