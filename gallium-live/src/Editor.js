@@ -113,9 +113,8 @@ export class Editor extends React.Component<
 
   render() {
     return (
-      <div>
-        <OutputSelector onChange={this.onMIDIOutputChange} />
-        <div style={{ marginTop: "20px" }}>
+      <Container>
+        <Content>
           <Textarea
             onChange={this.onChange}
             onKeyPress={this.onKeyPress}
@@ -126,19 +125,47 @@ export class Editor extends React.Component<
               this.textarea = ref;
             }}
           />
-        </div>
-      </div>
+        </Content>
+        <Pane>
+          <OutputSelector onChange={this.onMIDIOutputChange} />
+        </Pane>
+      </Container>
     );
   }
 }
 
 export default connect(Editor, ({ text }) => ({ text }));
 
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Pane = styled.div`
+  flex: 0 1 auto;
+  background-color: #dfdfdf;
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const Content = styled.div`
+  padding: 50px;
+  flex-grow: 1;
+  display: flex;
+`;
+
 const Textarea = styled.textarea`
   border: 0;
-  font-size: 24;
+  font-size: 20px;
   margin: 0;
-  padding: 0;
-  width: 100%;
+  flex-grow: 1;
   font-family: monospace;
+  box-shadow: -1px 0 0 0 #dfdfdf;
+  outline: none;
+  padding: 20px;
+  &:focus {
+    box-shadow: -1px 0 0 0 #000000;
+  }
 `;
