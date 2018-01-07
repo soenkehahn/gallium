@@ -36,5 +36,6 @@ export function main(options: Options) {
       "localhost"
     );
   }
+  console.log(`Gallium Relay started.`);
   return { wsServer, udpSocket };
 }

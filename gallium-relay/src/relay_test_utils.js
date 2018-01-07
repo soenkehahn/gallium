@@ -3,6 +3,7 @@ import WebSocket from "ws";
 import dgram from "dgram";
 import OSC from "osc-js";
 import * as TestUtils from "./test_utils";
+import child_process from "child_process";
 
 export async function connectToWebsocket(destination: string) {
   const ws = new WebSocket(destination);
@@ -45,4 +46,26 @@ export function startMockOSCServer(options: { oscPort: number }) {
     server,
     getOSCMessage
   };
+}
+
+export async function runRelay() {
+  const p = child_process.exec("node src/index.js");
+
+  let resolveInitialization = () => {
+    throw new Error("resolveInitialization not bound yet");
+  };
+
+  p.stdout.on("data", data => {
+    if (data === "Gallium Relay started.\n") {
+      resolveInitialization();
+    }
+  });
+
+  await new Promise(resolve => {
+    resolveInitialization = resolve;
+  });
+
+  TestUtils.cleanupWith(() => {
+    p.kill();
+  });
 }

@@ -1,15 +1,10 @@
 // @flow
-import * as Relay from "./relay";
 import * as TestUtils from "./test_utils";
-import { connectToWebsocket, startMockOSCServer } from "./relay_test_utils";
-
-function runMain(options: Relay.Options) {
-  const { wsServer, udpSocket } = Relay.main(options);
-  TestUtils.cleanupWith(() => {
-    wsServer.close();
-    udpSocket.close();
-  });
-}
+import {
+  connectToWebsocket,
+  startMockOSCServer,
+  runRelay
+} from "./relay_test_utils";
 
 describe("main", () => {
   const oscPort = 57110;
@@ -17,7 +12,7 @@ describe("main", () => {
 
   it("makes a websocket server that relays text", async () => {
     const oscServer = startMockOSCServer({ oscPort });
-    runMain({ websocketPort, oscPort });
+    await runRelay();
     const ws = await connectToWebsocket(`ws://localhost:${websocketPort}`);
 
     ws.send("note 60");
