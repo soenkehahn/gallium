@@ -5,7 +5,7 @@ import Editor from "./Editor";
 import { Store, makeInitialState, Provider } from "./store";
 import { type AppState } from "./state";
 import { applyGlobalStyles } from "./styles";
-import { RelayConnection } from "./relay";
+import { RelayConnection } from "./relay_connection";
 
 applyGlobalStyles();
 
