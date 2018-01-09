@@ -49,14 +49,14 @@ export function startMockOSCServer(options: { oscPort: number }) {
 }
 
 export async function runRelay() {
-  const p = child_process.exec("node src/index.js");
+  const p = child_process.spawn("node", ["src/index.js"]);
 
   let resolveInitialization = () => {
     throw new Error("resolveInitialization not bound yet");
   };
 
   p.stdout.on("data", data => {
-    if (data === "Gallium Relay started.\n") {
+    if (data.toString() === "Gallium Relay started.\n") {
       resolveInitialization();
     }
   });
