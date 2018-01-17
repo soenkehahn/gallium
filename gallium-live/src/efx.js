@@ -24,7 +24,6 @@ export function makeInitialState(): AppState {
     error: undefined,
     text: LocalStorage.loadText() || "note 24",
     intervalId: undefined,
-    invert: false,
     invert: LocalStorage.loadInvert() || false,
     output: MIDI.makeDummyDevice("mockDevice"),
     outputs: {},
