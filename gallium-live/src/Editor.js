@@ -22,7 +22,7 @@ type ContainerProps = {
   invert: boolean
 };
 
-const mapStateToProps = ({ text, invert }) => ({text, invert})
+const mapStateToProps = ({ text, invert }) => ({ text, invert });
 
 type State = {
   text: string,
@@ -126,7 +126,7 @@ export class _Editor extends React.Component<
     return (
       <Container
         isInitialized={this.state.isInitialized}
-        style={ { filter: this.props.invert ? "invert()" : ""}}
+        style={{ filter: this.props.invert ? "invert()" : "" }}
       >
         <Pane>
           <PaneChild>
@@ -161,7 +161,7 @@ export class _Editor extends React.Component<
 export const Editor = connect(_Editor, mapStateToProps);
 
 export const Container: React$ComponentType<{
-  isInitialized: boolean,
+  isInitialized: boolean
 }> = styled.div`
   width: 100%;
   height: 100%;
