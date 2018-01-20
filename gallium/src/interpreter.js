@@ -4,10 +4,12 @@ import type { ABT } from "./resolver";
 import * as AST from "./AST";
 
 export class IContext<State> {
-  state: State
+  state: State;
+
   constructor(state: State) {
     this.state = state;
   }
+
   run<B>(f: IContext<State> => B): B {
     return f(this);
   }
@@ -29,7 +31,7 @@ export const interpret = <State>(node: ABT): (IContext<State> => any) => ctx => 
       const result = ctx.run(interpret(child));
       args.push(result);
     }
-    return f(args);
+    return ctx.run(f(args));
   }
 
   throw new Error("Interpreter Error");
