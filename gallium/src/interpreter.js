@@ -6,9 +6,33 @@ import * as AST from "./AST";
 export class IContext<State> {
   state: State;
 
+  befores: Array<IContext<State> => void> = [];
+  afters: Array<IContext<State> => void> = [];
+
   constructor(state: State) {
     this.state = state;
   }
+
+  before() {
+    for (const before of this.befores) {
+      before(this);
+    }
+  }
+
+  after() {
+    for (const after of this.afters) {
+      after(this);
+    }
+  }
+  /*
+   *   forNextIteration(up: State => State, down: State => State) {
+   *     befores.push(() => {
+   *       up();
+   *       befores.push(() => {
+   *         down();
+   *       });
+   *     });
+   *   }*/
 
   run<B>(f: IContext<State> => B): B {
     return f(this);
@@ -20,6 +44,7 @@ export const interpret = <State>(node: ABT): (IContext<State> => any) => ctx => 
     return ctx.run(interpret(node.children[0]));
   }
 
+  // TODO: interpret literals
   if (node instanceof AST.NumLit || node instanceof AST.Name) {
     return node.data.value;
   }
