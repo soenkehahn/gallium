@@ -4,84 +4,107 @@ import { resolve, type BindingContext } from "./resolver";
 import { interpret, IContext } from "./interpreter";
 
 type State = {
-  counter: number
+  literalIntepretation: number => any
 };
 
 const bindingContext: BindingContext = {
-  pureFunction: {
-    value: (x: Array<number>) => (ctx: IContext): string => {
-      return `pureFunction ${JSON.stringify(x)}`;
+  join: {
+    value: (xs: Array<string>) => (ctx: IContext): string => {
+      return `(${xs.join(',')})`;
     }
   },
-  statefulFunction: {
-    value: (x: Array<number>) => (ctx: IContext): string => {
-      ctx.state.counter += 1;
-      return `statefulFunction ${JSON.stringify(x)}`;
+  joinWithDoubledNumbers: {
+    impureValue: (ctx: IContext) => {
+      ctx.state = {
+        ...ctx.state,
+        numLitInterpreter: x => `${x*2}`
+      };
+      return bindingContext.join.value;
     }
   },
-  bar: {
-    value: 100
+  asdf: {
+    value: "asdfValue"
   }
 };
 
 const makeInterpreterContext = (): IContext => {
   return new IContext({
-    counter: 0
+    numLitInterpreter: x => `${x}`
   });
 };
 
 describe("interpretation", () => {
 
-  it("should be able to interpret 0's", () => {
+  it("interprets numbers", () => {
     const ast = parse("0");
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe(0);
+    expect(ctx.run(interpret(abt))).toBe("0");
   });
 
-  it("should be able to interpret decimals", () => {
+  it("interprets decimals", () => {
     const ast = parse("0.5");
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe(0.5);
+    expect(ctx.run(interpret(abt))).toBe("0.5");
+  });
+
+  it("interprets names", () => {
+    const ast = parse("asdf");
+    const abt = resolve(bindingContext, ast);
+    const ctx = makeInterpreterContext();
+    expect(ctx.run(interpret(abt))).toBe("asdfValue");
   });
 
   it("should be able to interpret horizontal application", () => {
-    const ast = parse("(pureFunction bar 2 3)");
+    const ast = parse("(join 1 2 3)");
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe("pureFunction [100,2,3]");
+    expect(ctx.run(interpret(abt))).toBe("(1,2,3)");
   });
 
   it("should be able to interpret vertical application", () => {
-    const ast = parse(`pureFunction
-  bar
+    const ast = parse(`join
+  1
   2
   3`);
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe("pureFunction [100,2,3]");
+    expect(ctx.run(interpret(abt))).toBe("(1,2,3)");
   });
 
-  it("should be able to execute stateful computations", () => {
-    const ast = parse(`statefulFunction
-  bar
+});
+
+describe("scoped impure computations", () => {
+  test("top-level scoped impure computations", () => {
+    const ast = parse(`joinWithDoubledNumbers
+  1
   2
   3`);
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe("statefulFunction [100,2,3]");
-    expect(ctx.state.counter).toBe(1);
+    expect(ctx.run(interpret(abt))).toBe(`(2,4,6)`);
   });
 
-  it("should be able to execute single-level stateful computations", () => {
-    const ast = parse(`statefulFunction
-  bar
-  2
-  3`);
+  test("scoped impure computations should not leak", () => {
+    const ast = parse(`join
+  9
+  9
+  joinWithDoubledNumbers 1 2 3
+  9
+  9`);
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe("statefulFunction [100,2,3]");
-    expect(ctx.state.counter).toBe(1);
+    expect(ctx.run(interpret(abt))).toBe(`(9,9,(2,4,6),9,9)`);
+  });
+
+  test("scoped impure computations should persist", () => {
+    const ast = parse(`joinWithDoubledNumbers
+  1
+  join 1 1 1
+  1`);
+    const abt = resolve(bindingContext, ast);
+    const ctx = makeInterpreterContext();
+    expect(ctx.run(interpret(abt))).toBe(`(2,(2,2,2),2)`);
   });
 });
