@@ -10,14 +10,23 @@ type State = {
 const bindingContext: BindingContext = {
   join: {
     value: (xs: Array<string>) => (ctx: IContext): string => {
-      return `(${xs.join(',')})`;
+      return `(${xs.join(",")})`;
     }
   },
   joinWithDoubledNumbers: {
     impureValue: (ctx: IContext) => {
       ctx.state = {
         ...ctx.state,
-        numLitInterpreter: x => `${x*2}`
+        numLitInterpreter: x => `${x * 2}`
+      };
+      return bindingContext.join.value;
+    }
+  },
+  joinWithTripledNumbers: {
+    impureValue: (ctx: IContext) => {
+      ctx.state = {
+        ...ctx.state,
+        numLitInterpreter: x => `${x * 3}`
       };
       return bindingContext.join.value;
     }
@@ -34,7 +43,6 @@ const makeInterpreterContext = (): IContext => {
 };
 
 describe("interpretation", () => {
-
   it("interprets numbers", () => {
     const ast = parse("0");
     const abt = resolve(bindingContext, ast);
@@ -72,7 +80,6 @@ describe("interpretation", () => {
     const ctx = makeInterpreterContext();
     expect(ctx.run(interpret(abt))).toBe("(1,2,3)");
   });
-
 });
 
 describe("scoped impure computations", () => {
@@ -88,23 +95,31 @@ describe("scoped impure computations", () => {
 
   test("scoped impure computations should not leak", () => {
     const ast = parse(`join
-  9
-  9
-  joinWithDoubledNumbers 1 2 3
-  9
-  9`);
-    const abt = resolve(bindingContext, ast);
-    const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe(`(9,9,(2,4,6),9,9)`);
-  });
-
-  test("scoped impure computations should persist", () => {
-    const ast = parse(`joinWithDoubledNumbers
   1
-  join 1 1 1
+  joinWithDoubledNumbers 1
   1`);
     const abt = resolve(bindingContext, ast);
     const ctx = makeInterpreterContext();
-    expect(ctx.run(interpret(abt))).toBe(`(2,(2,2,2),2)`);
+    expect(ctx.run(interpret(abt))).toBe(`(1,(2),1)`);
+  });
+
+  test("scoped impure computations can be nested", () => {
+    const ast = parse(`joinWithDoubledNumbers
+  1
+  joinWithTripledNumbers 1
+  1`);
+    const abt = resolve(bindingContext, ast);
+    const ctx = makeInterpreterContext();
+    expect(ctx.run(interpret(abt))).toBe(`(2,(3),2)`);
+  });
+
+  test("scoped impure computations should persist throughout scope", () => {
+    const ast = parse(`joinWithDoubledNumbers
+  1
+  join 1
+  1`);
+    const abt = resolve(bindingContext, ast);
+    const ctx = makeInterpreterContext();
+    expect(ctx.run(interpret(abt))).toBe(`(2,(2),2)`);
   });
 });

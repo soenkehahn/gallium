@@ -5,7 +5,7 @@ import * as AST from "./AST";
 
 type IState = {
   +numLitInterpreter: number => any
-}
+};
 
 export class IContext {
   state: IState;
@@ -20,13 +20,13 @@ export class IContext {
 }
 
 const getValue: Interpreter = node => ctx => {
-  if (node.data.hasOwnProperty('value')) {
+  if (node.data.hasOwnProperty("value")) {
     return node.data.value;
   } else if (node.data.impureValue) {
     return ctx.run(node.data.impureValue);
   }
   throw new Error("Unexpected Error");
-}
+};
 
 type Interpreter = ABT => IContext => any;
 
