@@ -3,48 +3,32 @@
 import type { ABT } from "./resolver";
 import * as AST from "./AST";
 
-export class IContext<State> {
-  state: State;
+type IState = {
+  counter: number
+}
 
-  befores: Array<IContext<State> => void> = [];
-  afters: Array<IContext<State> => void> = [];
+export class IContext {
+  state: IState;
 
-  constructor(state: State) {
+  constructor(state: IState) {
     this.state = state;
   }
 
-  before() {
-    for (const before of this.befores) {
-      before(this);
-    }
-  }
-
-  after() {
-    for (const after of this.afters) {
-      after(this);
-    }
-  }
-  /*
-   *   forNextIteration(up: State => State, down: State => State) {
-   *     befores.push(() => {
-   *       up();
-   *       befores.push(() => {
-   *         down();
-   *       });
-   *     });
-   *   }*/
-
-  run<B>(f: IContext<State> => B): B {
+  run<B>(f: IContext => B): B {
     return f(this);
   }
 }
 
-export const interpret = <State>(node: ABT): (IContext<State> => any) => ctx => {
+type Interpreter = ABT => IContext => any;
+
+export const interpret: Interpreter = (node: ABT): (IContext => any) => ctx => {
   if (node instanceof AST.Paren) {
     return ctx.run(interpret(node.children[0]));
   }
 
-  // TODO: interpret literals
+  if (node instanceof AST.NumLit || node instanceof AST.Name) {
+    return node.data.value;
+  }
   if (node instanceof AST.NumLit || node instanceof AST.Name) {
     return node.data.value;
   }

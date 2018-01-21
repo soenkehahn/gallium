@@ -9,12 +9,12 @@ type State = {
 
 const bindingContext: BindingContext = {
   pureFunction: {
-    value: (x: Array<number>) => (ctx: IContext<State>): string => {
+    value: (x: Array<number>) => (ctx: IContext): string => {
       return `pureFunction ${JSON.stringify(x)}`;
     }
   },
   statefulFunction: {
-    value: (x: Array<number>) => (ctx: IContext<State>): string => {
+    value: (x: Array<number>) => (ctx: IContext): string => {
       ctx.state.counter += 1;
       return `statefulFunction ${JSON.stringify(x)}`;
     }
@@ -24,7 +24,7 @@ const bindingContext: BindingContext = {
   }
 };
 
-const makeInterpreterContext = (): IContext<State> => {
+const makeInterpreterContext = (): IContext => {
   return new IContext({
     counter: 0
   });
