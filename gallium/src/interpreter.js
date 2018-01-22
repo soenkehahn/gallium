@@ -51,7 +51,7 @@ export const interpret: Interpreter = (node: ABT): (IContext => any) => ctx => {
       const result = ctx.run(interpret(child));
       args.push(result);
     }
-    const ret = ctx.run(f(args));
+    const ret = f(args);
     ctx.state = savedState;
     return ret;
   }

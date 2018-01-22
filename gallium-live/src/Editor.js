@@ -3,7 +3,6 @@ import * as React from "react";
 import styled from "styled-components";
 import { parseTopLevel } from "gallium/lib/parser";
 import { type ABT, resolve } from "gallium/lib/resolver";
-import * as Interpreter from "gallium/lib/interpreter";
 import * as TopLevel from "./top_level";
 import { silence } from "gallium/lib/semantics";
 import { OutputSelector } from "./OutputSelector";
@@ -27,7 +26,6 @@ const mapStateToProps = ({ text, invert }) => ({ text, invert });
 
 type State = {
   text: string,
-  abt: ?ABT,
   error: ?string,
   isInitialized: boolean
 };
@@ -41,7 +39,6 @@ export class _Editor extends React.Component<
     this.state = {
       text: props.text,
       error: undefined,
-      abt: undefined,
       isInitialized: false
     };
   }
@@ -69,12 +66,10 @@ export class _Editor extends React.Component<
     try {
       const abt = TopLevel.parseAndResolve(text);
       this.setState({
-        abt,
         error: undefined
       });
       this.props.dispatch(store => {
-        const patternTransformer = Interpreter.interpret(abt);
-        store.state.pattern = patternTransformer(silence);
+        store.state.pattern = TopLevel.interpret(abt);
       });
       LocalStorage.saveText(text);
     } catch (e) {

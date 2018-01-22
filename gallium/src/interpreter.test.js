@@ -9,7 +9,7 @@ type State = {
 
 const bindingContext: BindingContext = {
   join: {
-    value: (xs: Array<string>) => (ctx: IContext): string => {
+    value: (xs: Array<string>) => {
       return `(${xs.join(",")})`;
     }
   },

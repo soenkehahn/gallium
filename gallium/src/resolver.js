@@ -3,7 +3,7 @@ import * as AST from "./AST";
 import { type Transformer } from "./semantics";
 import { IContext } from "./interpreter";
 
-type Term = { value?: any, impureValue?: IContext => any };
+export type Term = { value?: any, impureValue?: IContext => any };
 
 export type ABT = AST.With<Term>;
 
