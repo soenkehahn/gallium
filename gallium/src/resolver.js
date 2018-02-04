@@ -2,8 +2,13 @@
 import * as AST from "./AST";
 import { type Transformer } from "./semantics";
 import { IContext } from "./interpreter";
+import * as Types from "./types";
 
-export type Term = { value?: any, impureValue?: IContext => any };
+export type Term = {
+  type?: Types.Type,
+  value?: any,
+  impureValue?: IContext => any
+};
 
 export type ABT = AST.With<Term>;
 

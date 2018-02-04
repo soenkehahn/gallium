@@ -4,7 +4,7 @@ import * as TestUtils from "./test_utils";
 import { collectEventsNRT } from "./playback_test_utils";
 import * as Playback from "./playback";
 import { Store, makeInitialState } from "./efx";
-import * as TopLevel from "./top_level";
+import * as TopLevel from "gallium/lib/top_level";
 
 function parseAndInterpret(code: string) {
   return TopLevel.interpret(TopLevel.parseAndResolve(code));

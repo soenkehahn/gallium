@@ -11,10 +11,11 @@ import {
   stack,
   compose
 } from "gallium/lib/semantics";
-import { type ABT, resolve } from "gallium/lib/resolver";
-import { parseTopLevel } from "gallium/lib/parser";
-import { type Term, type BindingContext } from "gallium/lib/resolver";
-import * as Interpreter from "gallium/lib/interpreter";
+import { type Term, type BindingContext, type ABT, resolve } from "./resolver";
+import { parseTopLevel } from "./parser";
+import * as Interpreter from "./interpreter";
+import * as Types from "./types";
+import * as TypeChecker from "./type_checker";
 
 export function pitchMap(f: number => number): Transformer<Uint8Array> {
   return pattern => (start, end) => {
@@ -28,6 +29,7 @@ export function pitchMap(f: number => number): Transformer<Uint8Array> {
 
 function altWithNumLitInterpreter(numLitInterpreter: number => any): Term {
   return {
+    type: Types.listProcessor(Types.transformer, Types.transformer),
     impureValue: (ctx: Interpreter.IContext) => {
       ctx.state = { ...ctx.state, numLitInterpreter };
       return alt;
@@ -47,21 +49,27 @@ const note = (x: number): Transformer<Uint8Array> => {
 
 const globalContext: BindingContext = {
   i: {
+    type: Types.transformer,
     value: x => x
   },
   m: {
+    type: Types.transformer,
     value: () => silence
   },
   do: {
+    type: Types.listProcessor(Types.transformer, Types.transformer),
     value: compose
   },
   compose: {
+    type: Types.listProcessor(Types.transformer, Types.transformer),
     value: compose
   },
   stack: {
+    type: Types.listProcessor(Types.transformer, Types.transformer),
     value: stack
   },
   alt: {
+    type: Types.listProcessor(Types.transformer, Types.transformer),
     value: alt
   },
   note: altWithNumLitInterpreter(note),
@@ -78,7 +86,9 @@ const makeDefaultInterpreterContext = () =>
   });
 
 export function parseAndResolve(code: string): ABT {
-  return resolve(globalContext, parseTopLevel(code));
+  const node = resolve(globalContext, parseTopLevel(code));
+  TypeChecker.check(node, { type: Types.transformer });
+  return node;
 }
 
 export function interpret(node: ABT): Pattern<Uint8Array> {
