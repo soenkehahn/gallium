@@ -109,7 +109,13 @@ const globalContext: BindingContext = {
   fast: altWithPureNumLitInterpreter(x => fast(Math.min(x, 128))),
   add: altWithPureNumLitInterpreter(x => pitchMap(p => p + x)),
   sub: altWithPureNumLitInterpreter(x => pitchMap(p => p - x)),
-  shift: altWithPureNumLitInterpreter(shift)
+  shift: altWithPureNumLitInterpreter(shift),
+  channel: altWithNumLitInterpreter(channel => ctx => {
+    ctx.state = {
+      ...ctx.state,
+      channel
+    };
+  })
 };
 
 const makeDefaultInterpreterContext = () =>
