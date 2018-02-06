@@ -82,11 +82,11 @@ const note = (pitch: number): Impure<Transformer<Parameters>> => {
 const globalContext: BindingContext = {
   i: {
     type: Types.transformer,
-    value: pureFn(x => x)
+    value: x => x
   },
   m: {
     type: Types.transformer,
-    value: pureFn(() => silence)
+    value: () => silence
   },
   do: {
     type: Types.listProcessor(Types.transformer, Types.transformer),

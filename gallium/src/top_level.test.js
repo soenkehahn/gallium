@@ -1,6 +1,6 @@
 // @flow
 import * as TopLevel from "./top_level";
-import { type Pattern } from "./semantics";
+import { silence, type Pattern } from "./semantics";
 import * as MIDIUtils from "./midi_utils";
 
 const parse = (code: string): Pattern<TopLevel.Parameters> => {
@@ -32,4 +32,12 @@ it("allows changes in channel", () => {
   expect(pattern(0, 1)).toEqual([
     { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
   ]);
+});
+
+test("i is a no-op", () => {
+  expect(parse(`do (note 0) i`)(0, 1)).toEqual(parse(`do (note 0)`)(0, 1));
+});
+
+test("m mutes", () => {
+  expect(parse(`do (note 0) m`)(0, 1)).toEqual([]);
 });
