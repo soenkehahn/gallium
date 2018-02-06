@@ -17,9 +17,8 @@ export const pureFn = <A, B>(f: A => B): (A => Impure<B>) => {
 export type Term<A> = {
   type?: Types.Type,
   value?: A,
-  impureValue?: Impure<A>,
+  impureValue?: Impure<A>
 };
-
 
 export type ABT = AST.With<Term<any>>;
 

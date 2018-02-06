@@ -3,10 +3,6 @@ import { parse } from "./parser";
 import { pure, resolve, type BindingContext } from "./resolver";
 import { interpret, IContext } from "./interpreter";
 
-type State = {
-  literalIntepretation: number => any
-};
-
 const bindingContext: BindingContext = {
   join: {
     value: (xs: Array<string>) => {
@@ -18,7 +14,7 @@ const bindingContext: BindingContext = {
       const oldState = ctx.state;
       ctx.state = {
         ...ctx.state,
-        numLitInterpreter: x => `${x * 2}`
+        numLitInterpreter: x => ctx => `${x * 2}`
       };
       return xs => ctx => {
         ctx.state = {
@@ -26,7 +22,7 @@ const bindingContext: BindingContext = {
           numLitInterpreter: oldState.numLitInterpreter
         };
         return `(${xs.join(",")})`;
-      }
+      };
     }
   },
   lexicalJoinWithTripledNumbers: {
@@ -34,7 +30,7 @@ const bindingContext: BindingContext = {
       const oldState = ctx.state;
       ctx.state = {
         ...ctx.state,
-        numLitInterpreter: x => `${x * 3}`
+        numLitInterpreter: x => ctx => `${x * 3}`
       };
       return xs => ctx => {
         ctx.state = {
@@ -42,7 +38,7 @@ const bindingContext: BindingContext = {
           numLitInterpreter: oldState.numLitInterpreter
         };
         return `(${xs.join(",")})`;
-      }
+      };
     }
   },
   asdf: {
@@ -52,7 +48,8 @@ const bindingContext: BindingContext = {
 
 const makeInterpreterContext = (): IContext => {
   return new IContext({
-    numLitInterpreter: x => `${x}`
+    numLitInterpreter: x => ctx => `${x}`,
+    channel: 0
   });
 };
 

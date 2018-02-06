@@ -4,7 +4,8 @@ import type { ABT } from "./resolver";
 import * as AST from "./AST";
 
 type IState = {
-  +numLitInterpreter: number => any
+  +numLitInterpreter: number => IContext => any,
+  +channel: number
 };
 
 export class IContext {
@@ -36,7 +37,7 @@ export const interpret: Interpreter = (node: ABT): (IContext => any) => ctx => {
   }
 
   if (node instanceof AST.NumLit) {
-    return ctx.state.numLitInterpreter(node.data.value);
+    return ctx.run(ctx.state.numLitInterpreter(node.data.value));
   }
 
   if (node instanceof AST.Name) {

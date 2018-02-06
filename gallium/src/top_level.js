@@ -11,47 +11,73 @@ import {
   stack,
   compose
 } from "gallium/lib/semantics";
-import { type Term, type BindingContext, type ABT, resolve, pureFn, type Impure } from "./resolver";
+import {
+  type Term,
+  type BindingContext,
+  type ABT,
+  resolve,
+  pureFn,
+  type Impure
+} from "./resolver";
 import { parseTopLevel } from "./parser";
 import * as Interpreter from "./interpreter";
+import { IContext } from "./interpreter";
 import * as Types from "./types";
 import * as TypeChecker from "./type_checker";
 
-export function pitchMap(f: number => number): Transformer<Uint8Array> {
+export function pitchMap(f: number => number): Transformer<Parameters> {
   return pattern => (start, end) => {
     const events = pattern(start, end);
     return events.map(event => ({
       ...event,
-      value: new Uint8Array([event.value[0], f(event.value[1]), event.value[2]])
+      value: {
+        ...event.value,
+        pitch: f(event.value.pitch)
+      }
     }));
   };
 }
 
-function altWithNumLitInterpreter<A>(numLitInterpreter: number => A): Term<Array<Transformer<A>> => Impure<Transformer<A>>> {
+function altWithNumLitInterpreter<A>(
+  numLitInterpreter: number => IContext => A
+): Term<(Array<Transformer<A>>) => Impure<Transformer<A>>> {
   return {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    impureValue: (ctx: Interpreter.IContext) => {
+    impureValue: (ctx: IContext) => {
       const { numLitInterpreter: oldNumLitInterpreter } = ctx.state;
       ctx.state = { ...ctx.state, numLitInterpreter };
       return transformers => ctx => {
         const ret = alt(transformers);
         ctx.state = { ...ctx.state, numLitInterpreter: oldNumLitInterpreter };
         return ret;
-      }
+      };
     }
   };
 }
 
-const note = (x: number): Transformer<Uint8Array> => {
-  return () =>
+function altWithPureNumLitInterpreter<A>(
+  pureNumLitInterpreter: number => A
+): Term<(Array<Transformer<A>>) => Impure<Transformer<A>>> {
+  return altWithNumLitInterpreter(pureFn(pureNumLitInterpreter));
+}
+
+export type Parameters = {
+  channel: number,
+  pitch: number
+};
+
+const note = (pitch: number): Impure<Transformer<Parameters>> => {
+  return ctx => () =>
     periodic({
       period: 1,
       duration: 1,
       phase: 0,
-      value: new Uint8Array([0x90, x, 0x7f]) //note-on
+      value: {
+        channel: ctx.state.channel,
+        pitch
+      }
     });
 };
-
 
 const globalContext: BindingContext = {
   i: {
@@ -79,16 +105,17 @@ const globalContext: BindingContext = {
     value: pureFn(alt)
   },
   note: altWithNumLitInterpreter(note),
-  slow: altWithNumLitInterpreter(x => slow(Math.max(x, 1 / 128))),
-  fast: altWithNumLitInterpreter(x => fast(Math.min(x, 128))),
-  add: altWithNumLitInterpreter(x => pitchMap(p => p + x)),
-  sub: altWithNumLitInterpreter(x => pitchMap(p => p - x)),
-  shift: altWithNumLitInterpreter(shift)
+  slow: altWithPureNumLitInterpreter(x => slow(Math.max(x, 1 / 128))),
+  fast: altWithPureNumLitInterpreter(x => fast(Math.min(x, 128))),
+  add: altWithPureNumLitInterpreter(x => pitchMap(p => p + x)),
+  sub: altWithPureNumLitInterpreter(x => pitchMap(p => p - x)),
+  shift: altWithPureNumLitInterpreter(shift)
 };
 
 const makeDefaultInterpreterContext = () =>
-  new Interpreter.IContext({
-    numLitInterpreter: note
+  new IContext({
+    numLitInterpreter: note,
+    channel: 0
   });
 
 export function parseAndResolve(code: string): ABT {
@@ -97,7 +124,7 @@ export function parseAndResolve(code: string): ABT {
   return node;
 }
 
-export function interpret(node: ABT): Pattern<Uint8Array> {
+export function interpret(node: ABT): Pattern<Parameters> {
   const ctx = makeDefaultInterpreterContext();
   const transform = ctx.run(Interpreter.interpret(node));
   const pattern = transform(silence);
