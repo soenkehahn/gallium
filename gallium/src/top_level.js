@@ -11,7 +11,7 @@ import {
   stack,
   compose
 } from "gallium/lib/semantics";
-import { type Term, type BindingContext, type ABT, resolve } from "./resolver";
+import { type Term, type BindingContext, type ABT, resolve, pureFn, type Impure } from "./resolver";
 import { parseTopLevel } from "./parser";
 import * as Interpreter from "./interpreter";
 import * as Types from "./types";
@@ -27,12 +27,17 @@ export function pitchMap(f: number => number): Transformer<Uint8Array> {
   };
 }
 
-function altWithNumLitInterpreter(numLitInterpreter: number => any): Term {
+function altWithNumLitInterpreter<A>(numLitInterpreter: number => A): Term<Array<Transformer<A>> => Impure<Transformer<A>>> {
   return {
     type: Types.listProcessor(Types.transformer, Types.transformer),
     impureValue: (ctx: Interpreter.IContext) => {
+      const { numLitInterpreter: oldNumLitInterpreter } = ctx.state;
       ctx.state = { ...ctx.state, numLitInterpreter };
-      return alt;
+      return transformers => ctx => {
+        const ret = alt(transformers);
+        ctx.state = { ...ctx.state, numLitInterpreter: oldNumLitInterpreter };
+        return ret;
+      }
     }
   };
 }
@@ -47,30 +52,31 @@ const note = (x: number): Transformer<Uint8Array> => {
     });
 };
 
+
 const globalContext: BindingContext = {
   i: {
     type: Types.transformer,
-    value: x => x
+    value: pureFn(x => x)
   },
   m: {
     type: Types.transformer,
-    value: () => silence
+    value: pureFn(() => silence)
   },
   do: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: compose
+    value: pureFn(compose)
   },
   compose: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: compose
+    value: pureFn(compose)
   },
   stack: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: stack
+    value: pureFn(stack)
   },
   alt: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: alt
+    value: pureFn(alt)
   },
   note: altWithNumLitInterpreter(note),
   slow: altWithNumLitInterpreter(x => slow(Math.max(x, 1 / 128))),
