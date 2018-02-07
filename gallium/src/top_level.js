@@ -82,6 +82,17 @@ const note = (pitch: number): Impure<Transformer<Parameters>> => {
   };
 };
 
+const backtrackPureFn = f => ctx => {
+  const oldState = ctx.state;
+  return x => {
+    return ctx => {
+      const ret = f(x);
+      ctx.state = oldState;
+      return ret;
+    };
+  };
+};
+
 const globalContext: BindingContext = {
   i: {
     type: Types.transformer,
@@ -93,19 +104,19 @@ const globalContext: BindingContext = {
   },
   do: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: pureFn(compose)
+    impureValue: backtrackPureFn(compose)
   },
   compose: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: pureFn(compose)
+    impureValue: backtrackPureFn(compose)
   },
   stack: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: pureFn(stack)
+    impureValue: backtrackPureFn(stack)
   },
   alt: {
     type: Types.listProcessor(Types.transformer, Types.transformer),
-    value: pureFn(alt)
+    impureValue: backtrackPureFn(alt)
   },
   note: altWithNumLitInterpreter(note),
   slow: altWithPureNumLitInterpreter(x => slow(Math.max(x, 1 / 128))),
@@ -130,11 +141,12 @@ const globalContext: BindingContext = {
   }
 };
 
-const makeDefaultInterpreterContext = () =>
-  new IContext({
+const makeDefaultInterpreterContext = () => {
+  return new IContext({
     numLitInterpreter: note,
     channel: 0
   });
+};
 
 export function parseAndResolve(code: string): ABT {
   const node = resolve(globalContext, parseTopLevel(code));

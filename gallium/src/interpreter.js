@@ -45,7 +45,6 @@ export const interpret: Interpreter = (node: ABT): (IContext => any) => ctx => {
   }
 
   if (node instanceof AST.HApp || node instanceof AST.VApp) {
-    const savedState = ctx.state;
     const f = ctx.run(interpret(node.children[0]));
     let args = [];
     for (const child of node.children.slice(1)) {

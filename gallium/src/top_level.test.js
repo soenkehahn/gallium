@@ -45,6 +45,26 @@ describe("channel", () => {
       { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
     ]);
   });
+
+  test("is block-scoped", () => {
+    const pattern = parse(`alt (do (channel 1) (note 0)) (note 0)`);
+    expect(pattern(0, 1)).toEqual([
+      { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
+    ]);
+    expect(pattern(1, 2)).toEqual([
+      { start: 1, end: 2, value: { channel: 0, pitch: 0 } }
+    ]);
+  });
+
+  test("is block-scoped (2)", () => {
+    const pattern = parse(`alt (do (channel 1) (do (channel 2) 0)) (note 0)`);
+    expect(pattern(1, 2)).toEqual([
+      { start: 1, end: 2, value: { channel: 0, pitch: 0 } }
+    ]);
+    expect(pattern(0, 1)).toEqual([
+      { start: 0, end: 1, value: { channel: 2, pitch: 0 } }
+    ]);
+  });
 });
 
 test("i is a no-op", () => {
