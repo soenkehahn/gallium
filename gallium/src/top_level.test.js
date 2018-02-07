@@ -34,6 +34,13 @@ it("allows changes in channel", () => {
   ]);
 });
 
+it("TODO: rename test", () => {
+  const pattern = parse(`do (channel 1) (note 0) (channel 1)`);
+  expect(pattern(0, 1)).toEqual([
+    { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
+  ]);
+});
+
 test("i is a no-op", () => {
   expect(parse(`do (note 0) i`)(0, 1)).toEqual(parse(`do (note 0)`)(0, 1));
 });
