@@ -67,16 +67,19 @@ export type Parameters = {
 };
 
 const note = (pitch: number): Impure<Transformer<Parameters>> => {
-  return ctx => () =>
-    periodic({
-      period: 1,
-      duration: 1,
-      phase: 0,
-      value: {
-        channel: ctx.state.channel,
-        pitch
-      }
-    });
+  return ctx => {
+    const value = {
+      channel: ctx.state.channel,
+      pitch
+    };
+    return () =>
+      periodic({
+        period: 1,
+        duration: 1,
+        phase: 0,
+        value
+      });
+  };
 };
 
 const globalContext: BindingContext = {
@@ -110,12 +113,21 @@ const globalContext: BindingContext = {
   add: altWithPureNumLitInterpreter(x => pitchMap(p => p + x)),
   sub: altWithPureNumLitInterpreter(x => pitchMap(p => p - x)),
   shift: altWithPureNumLitInterpreter(shift),
-  channel: altWithNumLitInterpreter(channel => ctx => {
-    ctx.state = {
-      ...ctx.state,
-      channel
-    };
-  })
+  channel: {
+    type: Types.func(Types.number, Types.transformer),
+    impureValue: ctx => {
+      const state0 = ctx.state;
+      ctx.state = { ...ctx.state, numLitInterpreter: x => () => x };
+      return ([channel]) => ctx => {
+        ctx.state = {
+          ...ctx.state,
+          channel: channel,
+          numLitInterpreter: state0.numLitInterpreter
+        };
+        return x => x;
+      };
+    }
+  }
 };
 
 const makeDefaultInterpreterContext = () =>

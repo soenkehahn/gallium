@@ -27,18 +27,24 @@ it("throws a type error when given an invalid parenthesized argument", () => {
   expect(parsePattern).toThrow();
 });
 
-it("allows changes in channel", () => {
-  const pattern = parse(`do (channel 1) (note 0)`);
-  expect(pattern(0, 1)).toEqual([
-    { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
-  ]);
-});
+describe("channel", () => {
+  test("setting", () => {
+    const pattern = parse(`do (channel 1) (note 0)`);
+    expect(pattern(0, 1)).toEqual([
+      { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
+    ]);
+  });
 
-it("TODO: rename test", () => {
-  const pattern = parse(`do (channel 1) (note 0) (channel 1)`);
-  expect(pattern(0, 1)).toEqual([
-    { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
-  ]);
+  test("having multiple values type-errors", () => {
+    expect(() => parse(`do (channel 0 1) (note 0)`)).toThrow();
+  });
+
+  test("extraneous changes result in no-op", () => {
+    const pattern = parse(`do (channel 1) (note 0) (channel 1)`);
+    expect(pattern(0, 1)).toEqual([
+      { start: 0, end: 1, value: { channel: 1, pitch: 0 } }
+    ]);
+  });
 });
 
 test("i is a no-op", () => {
