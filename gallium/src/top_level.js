@@ -55,12 +55,6 @@ function altWithNumLitInterpreter<A>(
   };
 }
 
-function altWithPureNumLitInterpreter<A>(
-  pureNumLitInterpreter: number => A
-): Term<(Array<Transformer<A>>) => Impure<Transformer<A>>> {
-  return altWithNumLitInterpreter(pureFn(pureNumLitInterpreter));
-}
-
 export type Parameters = {
   channel: number,
   pitch: number
@@ -119,11 +113,11 @@ const globalContext: BindingContext = {
     impureValue: backtrackPureFn(alt)
   },
   note: altWithNumLitInterpreter(note),
-  slow: altWithPureNumLitInterpreter(x => slow(Math.max(x, 1 / 128))),
-  fast: altWithPureNumLitInterpreter(x => fast(Math.min(x, 128))),
-  add: altWithPureNumLitInterpreter(x => pitchMap(p => p + x)),
-  sub: altWithPureNumLitInterpreter(x => pitchMap(p => p - x)),
-  shift: altWithPureNumLitInterpreter(shift),
+  slow: altWithNumLitInterpreter(pureFn(x => slow(Math.max(x, 1 / 128)))),
+  fast: altWithNumLitInterpreter(pureFn(x => fast(Math.min(x, 128)))),
+  add: altWithNumLitInterpreter(pureFn(x => pitchMap(p => p + x))),
+  sub: altWithNumLitInterpreter(pureFn(x => pitchMap(p => p - x))),
+  shift: altWithNumLitInterpreter(pureFn(shift)),
   channel: {
     type: Types.func(Types.number, Types.transformer),
     impureValue: ctx => {
