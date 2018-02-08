@@ -44,11 +44,11 @@ function altWithNumLitInterpreter<A>(
   return {
     type: Types.listProcessor(Types.transformer, Types.transformer),
     impureValue: (ctx: IContext) => {
-      const { numLitInterpreter: oldNumLitInterpreter } = ctx.state;
+      const oldState = ctx.state;
       ctx.state = { ...ctx.state, numLitInterpreter };
       return transformers => ctx => {
         const ret = alt(transformers);
-        ctx.state = { ...ctx.state, numLitInterpreter: oldNumLitInterpreter };
+        ctx.state = oldState;
         return ret;
       };
     }
@@ -127,13 +127,13 @@ const globalContext: BindingContext = {
   channel: {
     type: Types.func(Types.number, Types.transformer),
     impureValue: ctx => {
-      const state0 = ctx.state;
+      const oldState = ctx.state;
       ctx.state = { ...ctx.state, numLitInterpreter: x => () => x };
       return ([channel]) => ctx => {
         ctx.state = {
           ...ctx.state,
           channel: channel,
-          numLitInterpreter: state0.numLitInterpreter
+          numLitInterpreter: oldState.numLitInterpreter
         };
         return x => x;
       };
